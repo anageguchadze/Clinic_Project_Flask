@@ -2,7 +2,7 @@ from flask import Flask
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'supersecretkey'  # დროებით, auth-ისთვის მოგვიანებით გამოვიყენებთ
+    app.secret_key = 'საიდუმლო_გასაღები'
 
     from .routes import main
     app.register_blueprint(main)
