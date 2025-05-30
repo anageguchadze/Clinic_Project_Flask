@@ -1,0 +1,72 @@
+/* body-ის საერთო სტილი */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+/* header */
+header {
+    background-color: #0077cc;
+    color: white;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    letter-spacing: 2px;
+}
+
+/* ნავიგაცია */
+nav {
+    margin-top: 10px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: #ffd700;
+    text-decoration: underline;
+}
+
+/* მთავარი კონტენტი */
+main {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    background: white;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    border-radius: 8px;
+}
+
+/* სექციები */
+section {
+    margin-bottom: 2rem;
+}
+
+h2, h3 {
+    color: #0077cc;
+    margin-bottom: 0.5rem;
+}
+
+/* ფეხის სექცია */
+footer {
+    background-color: #eee;
+    text-align: center;
+    padding: 1rem 0;
+    font-size: 0.9rem;
+    color: #666;
+    border-top: 1px solid #ddd;
+}
