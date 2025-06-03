@@ -10,40 +10,44 @@
     <button onclick="showRegister()">რეგისტრაცია</button>
 </div>
 
+<!-- Login Form -->
 <div id="login-form" style="display: block; margin-top: 20px;">
     <h3>შესვლა</h3>
     <form method="POST">
         <input type="hidden" name="login" value="1">
+        
         <label for="login-username">მომხმარებელი:</label><br>
         <input id="login-username" name="username" type="text" required><br>
+        
         <label for="login-password">პაროლი:</label><br>
         <input id="login-password" name="password" type="password" required><br><br>
+        
         <button type="submit">შესვლა</button>
     </form>
 </div>
 
+<!-- Register Form -->
 <div id="register-form" style="display: none; margin-top: 20px;">
     <h3>რეგისტრაცია</h3>
     <form method="POST">
         <input type="hidden" name="register" value="1">
+        
         <label for="register-username">მომხმარებელი:</label><br>
         <input id="register-username" name="username" type="text" required><br>
+        
         <label for="register-password">პაროლი:</label><br>
-        <input id="register-password" name="password" type="password" required><br><br>
+        <input id="register-password" name="password" type="password" required><br>
+        
+        <label for="role">როლი:</label><br>
+        <select name="role" id="role" required>
+            <option value="">აირჩიეთ როლი</option>
+            <option value="patient">პაციენტი</option>
+            <option value="doctor">ექიმი</option>
+        </select><br><br>
+        
         <button type="submit">რეგისტრაცია</button>
     </form>
 </div>
-
-<script>
-    function showLogin() {
-        document.getElementById('login-form').style.display = 'block';
-        document.getElementById('register-form').style.display = 'none';
-    }
-    function showRegister() {
-        document.getElementById('login-form').style.display = 'none';
-        document.getElementById('register-form').style.display = 'block';
-    }
-</script>
 
 <!-- Flash messages -->
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -56,4 +60,15 @@
   {% endif %}
 {% endwith %}
 
+<!-- Toggle Script -->
+<script>
+    function showLogin() {
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('register-form').style.display = 'none';
+    }
+    function showRegister() {
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('register-form').style.display = 'block';
+    }
+</script>
 {% endblock %}
