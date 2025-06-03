@@ -75,3 +75,9 @@ def account():
             appointments = Appointment.query.filter_by(user_id=user.id).order_by(Appointment.date).all()
 
     return render_template('account.html', user=user, appointments=appointments)
+
+@main.route('/logout')
+def logout():
+    session.clear()
+    flash('თქვენ გამოხვედით სისტემიდან.', 'success')
+    return redirect(url_for('main.account'))

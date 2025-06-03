@@ -1,8 +1,87 @@
 {% extends 'base.html' %}
+
 {% block title %}კაბინეტი{% endblock %}
 
 {% block content %}
 <h2>მომხმარებლის კაბინეტი</h2>
+
+{% if not user %}
+    <div>
+        <button onclick="showLogin()">შესვლა</button>
+        <button onclick="showRegister()">რეგისტრაცია</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="login-form" style="display: block; margin-top: 20px;">
+        <h3>შესვლა</h3>
+        <form method="POST">
+            <input type="hidden" name="login" value="1">
+            <label>მომხმარებელი:</label><br>
+            <input name="username" type="text" required><br>
+            <label>პაროლი:</label><br>
+            <input name="password" type="password" required><br><br>
+            <button type="submit">შესვლა</button>
+        </form>
+    </div>
+
+    <!-- Register Form -->
+    <div id="register-form" style="display: none; margin-top: 20px;">
+        <h3>რეგისტრაცია</h3>
+        <form method="POST">
+            <input type="hidden" name="register" value="1">
+            <label>მომხმარებელი:</label><br>
+            <input name="username" type="text" required><br>
+            <label>პაროლი:</label><br>
+            <input name="password" type="password" required><br>
+            <label>როლი:</label><br>
+            <select name="role" required>
+                <option value="">აირჩიეთ როლი</option>
+                <option value="patient">პაციენტი</option>
+                <option value="doctor">ექიმი</option>
+            </select><br><br>
+            <button type="submit">რეგისტრაცია</button>
+        </form>
+    </div>
+{% else %}
+    <p>მოგესალმებით, {{ user.username }}! (როლი: {{ user.role }})</p>
+
+    <!-- გამოსვლის ღილაკი -->
+    <form method="GET" action="{{ url_for('main.logout') }}">
+        <button type="submit">გამოსვლა</button>
+    </form>
+
+    {% if user.role == 'patient' %}
+        <h3>დაჯავშნე ვიზიტი</h3>
+        <form method="POST">
+            <input type="hidden" name="action" value="book">
+            <label>სერვისი:</label><br>
+            <input type="text" name="service" required><br>
+            <label>თარიღი და დრო:</label><br>
+            <input type="datetime-local" name="date" required><br><br>
+            <button type="submit">დაჯავშნა</button>
+        </form>
+
+        <h3>ჩემი ვიზიტები</h3>
+        {% if appointments %}
+            <ul>
+            {% for appt in appointments %}
+                <li>
+                    {{ appt.service }} — {{ appt.date.strftime("%Y-%m-%d %H:%M") }}
+                    <form method="POST" style="display:inline;">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="appointment_id" value="{{ appt.id }}">
+                        <button type="submit">წაშლა</button>
+                    </form>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>არ გაქვს ჯავშნები.</p>
+        {% endif %}
+    {% else %}
+        <p>ექიმის კაბინეტი მალე დაემატება.</p>
+    {% endif %}
+{% endif %}
 
 <!-- Flash messages -->
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -15,91 +94,15 @@
   {% endif %}
 {% endwith %}
 
-{% if user %}
-    {% if user.role == 'patient' %}
-        <!-- პაციენტის კაბინეტი -->
-        <h3>დაჯავშნე ვიზიტი</h3>
-        <form method="POST">
-            <input type="hidden" name="action" value="book">
-            <label>მომსახურება:</label><br>
-            <select name="service" required>
-                <option value="ოჯახის ექიმი">ოჯახის ექიმი</option>
-                <option value="დენტალური კონსულტაცია">დენტალური კონსულტაცია</option>
-                <option value="ლაბორატორიული კვლევა">ლაბორატორიული კვლევა</option>
-            </select><br><br>
-
-            <label>თარიღი და დრო:</label><br>
-            <input type="datetime-local" name="date" required><br><br>
-
-            <button type="submit">დაჯავშნა</button>
-        </form>
-
-        <hr>
-        <h3>ჩემი ვიზიტები</h3>
-        <ul>
-            {% for a in appointments %}
-                <li>
-                    {{ a.service }} - {{ a.date.strftime('%Y-%m-%d %H:%M') }}
-                    <form method="POST" style="display:inline;">
-                        <input type="hidden" name="action" value="delete">
-                        <input type="hidden" name="appointment_id" value="{{ a.id }}">
-                        <button type="submit">წაშლა</button>
-                    </form>
-                </li>
-            {% else %}
-                <p>ჯერ არ გაქვთ დაჯავშნილი ვიზიტი.</p>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>ექიმის კაბინეტი მალე დაემატება.</p>
-    {% endif %}
-{% else %}
-    <!-- თუ არ არის ავტორიზებული -->
-    <div>
-        <button onclick="showLogin()">შესვლა</button>
-        <button onclick="showRegister()">რეგისტრაცია</button>
-    </div>
-
-    <!-- Login Form -->
-    <div id="login-form" style="display: block; margin-top: 20px;">
-        <h3>შესვლა</h3>
-        <form method="POST">
-            <input type="hidden" name="login" value="1">
-            <label for="login-username">მომხმარებელი:</label><br>
-            <input id="login-username" name="username" type="text" required><br>
-            <label for="login-password">პაროლი:</label><br>
-            <input id="login-password" name="password" type="password" required><br><br>
-            <button type="submit">შესვლა</button>
-        </form>
-    </div>
-
-    <!-- Register Form -->
-    <div id="register-form" style="display: none; margin-top: 20px;">
-        <h3>რეგისტრაცია</h3>
-        <form method="POST">
-            <input type="hidden" name="register" value="1">
-            <label for="register-username">მომხმარებელი:</label><br>
-            <input id="register-username" name="username" type="text" required><br>
-            <label for="register-password">პაროლი:</label><br>
-            <input id="register-password" name="password" type="password" required><br>
-            <label for="role">როლი:</label><br>
-            <select name="role" id="role" required>
-                <option value="">აირჩიეთ როლი</option>
-                <option value="patient">პაციენტი</option>
-                <option value="doctor">ექიმი</option>
-            </select><br><br>
-            <button type="submit">რეგისტრაცია</button>
-        </form>
-    </div>
-    <script>
-        function showLogin() {
-            document.getElementById('login-form').style.display = 'block';
-            document.getElementById('register-form').style.display = 'none';
-        }
-        function showRegister() {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('register-form').style.display = 'block';
-        }
-    </script>
-{% endif %}
+<!-- Toggle Script -->
+<script>
+    function showLogin() {
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('register-form').style.display = 'none';
+    }
+    function showRegister() {
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('register-form').style.display = 'block';
+    }
+</script>
 {% endblock %}
