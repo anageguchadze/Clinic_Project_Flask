@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import db, User, Appointment
-from datetime import datetime
 
 main = Blueprint('main', __name__)
+
+# დროებითი მომხმარებლების „ბაზა“
+users = {}
 
 @main.route('/')
 def index():
@@ -12,72 +13,33 @@ def index():
 @main.route('/account', methods=['GET', 'POST'])
 def account():
     if request.method == 'POST':
-        if request.form.get('login'):
-            # ლოგინი
+        if 'login' in request.form:
             username = request.form['username']
             password = request.form['password']
-            user = User.query.filter_by(username=username).first()
+            user = users.get(username)
 
-            if user and check_password_hash(user.password, password):
-                session['user_id'] = user.id
-                flash('წარმატებით შეხვედით სისტემაში!', 'success')
-                return redirect(url_for('main.account'))
+            if user and check_password_hash(user['password'], password):
+                session['user'] = username
+                flash('თქვენ წარმატებით შეხვალთ სისტემაში!', 'success')
+                return redirect(url_for('main.dashboard'))
             else:
-                flash('არასწორი მომხმარებელი ან პაროლი.', 'error')
+                flash('მომხმარებელი ან პაროლი არასწორია.', 'error')
 
-        elif request.form.get('register'):
-            # რეგისტრაცია
+        elif 'register' in request.form:
             username = request.form['username']
             password = request.form['password']
-            role = request.form['role']
-            
-            existing_user = User.query.filter_by(username=username).first()
-            if existing_user:
+            if username in users:
                 flash('მომხმარებელი უკვე არსებობს.', 'error')
             else:
-                hashed_pw = generate_password_hash(password)
-                new_user = User(username=username, password=hashed_pw, role=role)
-                db.session.add(new_user)
-                db.session.commit()
-                flash('რეგისტრაცია წარმატებით დასრულდა!', 'success')
+                users[username] = {'password': generate_password_hash(password)}
+                flash('რეგისტრაცია წარმატებით დასრულდა. ახლა შეგიძლიათ შედით.', 'success')
                 return redirect(url_for('main.account'))
 
-        elif request.form.get('action') == 'book':
-            # ვიზიტის დაჯავშნა
-            if 'user_id' in session:
-                service = request.form['service']
-                date_str = request.form['date']
-                try:
-                    date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M")
-                    new_appointment = Appointment(user_id=session['user_id'], service=service, date=date)
-                    db.session.add(new_appointment)
-                    db.session.commit()
-                    flash('ვიზიტი დაჯავშნილია.', 'success')
-                except Exception as e:
-                    flash(f'დროის ფორმატი არასწორია. {e}', 'error')
+    return render_template('account.html')
 
-        elif request.form.get('action') == 'delete':
-            # ვიზიტის წაშლა
-            appointment_id = request.form['appointment_id']
-            appt = Appointment.query.filter_by(id=appointment_id, user_id=session['user_id']).first()
-            if appt:
-                db.session.delete(appt)
-                db.session.commit()
-                flash('ვიზიტი წაშლილია.', 'success')
-            else:
-                flash('ვიზიტი ვერ მოიძებნა.', 'error')
-
-    user = None
-    appointments = []
-    if 'user_id' in session:
-        user = User.query.get(session['user_id'])
-        if user.role == 'patient':
-            appointments = Appointment.query.filter_by(user_id=user.id).order_by(Appointment.date).all()
-
-    return render_template('account.html', user=user, appointments=appointments)
-
-@main.route('/logout')
-def logout():
-    session.clear()
-    flash('თქვენ გამოხვედით სისტემიდან.', 'success')
-    return redirect(url_for('main.account'))
+@main.route('/dashboard')
+def dashboard():
+    if 'user' not in session:
+        flash('გთხოვთ, ჯერ შედით სისტემაში.', 'error')
+        return redirect(url_for('main.account'))
+    return f"<h1>მოგესალმები, {session['user']}!</h1>"
