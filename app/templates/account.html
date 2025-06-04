@@ -45,7 +45,6 @@
 {% else %}
     <p>მოგესალმებით, {{ user.username }}! (როლი: {{ user.role }})</p>
 
-    <!-- გამოსვლის ღილაკი -->
     <form method="GET" action="{{ url_for('main.logout') }}">
         <button type="submit">გამოსვლა</button>
     </form>
