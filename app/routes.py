@@ -7,7 +7,10 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    return redirect(url_for('main.account'))
+    user = None
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
+    return render_template('index.html', user=user)
 
 @main.route('/account', methods=['GET', 'POST'])
 def account():
